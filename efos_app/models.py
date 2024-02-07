@@ -37,6 +37,11 @@ class MexicanStates(models.TextChoices):
     ZACATECAS = 'ZACATECAS'
 
 
+class TypeOfPersonChoices(models.TextChoices):
+    MORAL = 'M', _('Persona Moral')
+    FISICA = 'F', _('Persona Física')
+
+
 class Efo(models.Model):
     DEFINITIVO = 'DEF'
     DESVIRTUADO = 'DES'
@@ -49,14 +54,7 @@ class Efo(models.Model):
         (SENTENCIA_FAVORABLE, 'Sentencia_Favorable'),
     ]
 
-    MORAL = 'M'
-    PHYSICAL = 'F'
-    TYPE_OF_PERSON_CHOICES = [
-        (MORAL, 'Persona Moral'),
-        (PHYSICAL, 'Persona Física'),
-    ]
-
-    rfc = models.CharField(max_length=13, null = False)
+    rfc = models.CharField(max_length=13, null=False)
     social_reason = models.TextField(max_length=250)
     fiscal_situation = models.CharField(
         max_length=3, choices=FISCAL_SITUATION_CHOICES)
@@ -87,7 +85,7 @@ class Efo(models.Model):
     dof_distorted_file_date = models.DateField(null=True)
     sat_favorable_ruling_file_date = models.DateField(null=True)
     dof_favorable_ruling_file_date = models.DateField(null=True)
-    
+
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -97,32 +95,66 @@ class Efo(models.Model):
 
 class PersonDetail(models.Model):
 
-    MORAL = 'M'
-    PHYSICAL = 'F'
-    TYPE_OF_PERSON_CHOICES = [
-        (MORAL, 'Persona Moral'),
-        (PHYSICAL, 'Persona Física'),
-    ]
-
     FIRME = 'FIRMES'
     EXIGIBLE = 'EXIGIBLES'
     NO_LOCALIZADO = 'NO LOCALIZADOS'
+    SENTENCIAS = 'SENTENCIAS'
     ASSUMPTION_CHOICES = [
         (FIRME, 'Firme'),
         (EXIGIBLE, 'Exigible'),
-        (NO_LOCALIZADO, 'No Localizado')
+        (NO_LOCALIZADO, 'No Localizado'),
+        (SENTENCIAS, 'Sentencias')
     ]
 
     rfc = models.CharField(max_length=13)
     social_reason = models.TextField(max_length=250)
     date_published = models.DateField(null=True)
     type_of_person = models.CharField(blank=True,
-                                      max_length=1, choices=TYPE_OF_PERSON_CHOICES)
-    state = models.CharField(MexicanStates.choices, blank=True)
+                                      max_length=1, choices=TypeOfPersonChoices.choices)
+    state = models.CharField(choices = MexicanStates.choices, blank=True)
     assumption = models.CharField(
         blank=True, max_length=14, choices=ASSUMPTION_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+        return f"{self.rfc} - {self.social_reason}"
+
+
+class Cancellation(models.Model):
+
+    CANCELADO = 'C'
+    INCOSTEABILIDAD = 'INCO'
+    INSOLVENCIA = 'INSO'
+    CANCEL_CHOICES = [
+        (CANCELADO, 'Cancelados'),
+        (INCOSTEABILIDAD, 'Cancelados por incosteabiliad'),
+        (INSOLVENCIA, 'Cancelados por insolvencia'),
+    ]
+
+    rfc = models.CharField(max_length=13)
+    social_reason = models.TextField(max_length=250)
+    type_of_person = models.CharField(blank=True,
+                                      max_length=1, choices=TypeOfPersonChoices.choices)
+    state = models.CharField(choices = MexicanStates.choices, blank=True)
+    date_published = models.DateField(null=True)
+    amount = models.DecimalField(decimal_places=3, max_digits=15)
+    cancel_reason = models.CharField(max_length=4, choices=CANCEL_CHOICES)
+    cancellation_date = models.DateField(null=True)
+
+    def __str__(self) -> str:
+        return f"{self.rfc} - {self.social_reason}"
+
+
+class Art74Reduction(models.Model):
+    rfc = models.CharField(max_length=13)
+    social_reason = models.TextField(max_length=250)
+    type_of_person = models.CharField(blank=True,
+                                      max_length=1, choices=TypeOfPersonChoices.choices)
+    state = models.CharField(choices = MexicanStates.choices, blank=True)
+    date_published = models.DateField(null=True)
+    amount = models.DecimalField(decimal_places= 3, max_digits=15)
+    authorization_date = models.DateField(null=True)
+
+    def __str__(self) -> str:
         return f"{self.rfc} - {self.social_reason}"

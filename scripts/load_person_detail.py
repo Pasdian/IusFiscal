@@ -17,7 +17,7 @@ def parse_normal_date(data):
 
 
 def run():
-    with open('static/69NoLoc.csv') as file:
+    with open('static/Sentencias_13_OCT_2023.csv', encoding='latin-1') as file:
         count = 0
         reader = csv.reader(file)
         next(reader)
@@ -29,9 +29,9 @@ def run():
 
             person = PersonDetail(rfc=row[0],
                                   social_reason=row[1],
-                                  assumption=row[2],
-                                  date_published=parse_normal_date(row[3]),
-                                  type_of_person=row[4],
+                                  assumption=row[3],
+                                  date_published=parse_normal_date(row[4]),
+                                  type_of_person=row[2],
                                   state=row[5],
                                   )
             person_arr.append(person)
